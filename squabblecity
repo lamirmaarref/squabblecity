@@ -1,0 +1,255 @@
+-- Kaiblu Script | PC Version for Xeno Executor
+-- Press V to Hide/Show GUI
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- ==================== ADONIS BYPASS ====================
+local getinfo = getinfo or debug.getinfo
+local DEBUG = false
+local Hooked = {}
+local Detected, Kill
+
+setthreadidentity(2)
+for i, v in getgc(true) do
+    if typeof(v) == "table" then
+        local DetectFunc = rawget(v, "Detected")
+        local KillFunc = rawget(v, "Kill")
+       
+        if typeof(DetectFunc) == "function" and not Detected then
+            Detected = DetectFunc
+            hookfunction(Detected, function(Action, Info, NoCrash)
+                if Action ~= "_" then
+                    if DEBUG then warn("Adonis flagged: " .. Action) end
+                end
+                return true
+            end)
+        end
+       
+        if rawget(v, "Variables") and rawget(v, "Process") and typeof(KillFunc) == "function" and not Kill then
+            Kill = KillFunc
+            hookfunction(Kill, function(Info)
+                if DEBUG then warn("Adonis tried to kill: " .. Info) end
+            end)
+        end
+    end
+end
+setthreadidentity(7)
+-- ==================== END BYPASS ====================
+
+task.wait(2)
+
+-- ==================== VARIABLES ====================
+local char = player.Character or player.CharacterAdded:Wait()
+player.CharacterAdded:Connect(function(c) char = c end)
+
+-- ==================== COLORS ====================
+local PANEL_COLOR = Color3.fromRGB(20, 30, 55)
+local TITLE_COLOR = Color3.fromRGB(10, 25, 70)
+local STROKE_COLOR = Color3.fromRGB(0, 170, 255)
+local BUTTON_BASE = Color3.fromRGB(35, 50, 90)
+local BUTTON_ON = Color3.fromRGB(0, 140, 255)
+
+local taskHandles = {}
+local guiVisible = true
+
+-- ==================== FEATURES ====================
+local function autoDragFeature(state)
+    if state then
+        taskHandles.autodrag = task.spawn(function()
+            while true do
+                pcall(function()
+                    local args = {
+                        { Received = 10, Loader = Instance.new("Folder"), Sent = 14, Module = Instance.new("ModuleScript"), Mode = "Fire" },
+                        "u^\rTWLs\tHSX",
+                        { Received = 10, Sent = 13 },
+                        "2df06fb6-74b5-48f0-8bcc-8d9f86a8d12f"
+                    }
+                    local remote = ReplicatedStorage:WaitForChild("d8ea441b-aabf-450f-8869-cedb065f6866")
+                    remote:FireServer(unpack(args))
+                end)
+                task.wait(0.01)
+            end
+        end)
+    else
+        if taskHandles.autodrag then task.cancel(taskHandles.autodrag) taskHandles.autodrag = nil end
+    end
+end
+
+local function weightFeature(state)
+    if state then
+        taskHandles.weight = task.spawn(function()
+            while true do
+                pcall(function()
+                    local AnimationSystem = require(ReplicatedStorage:WaitForChild("Modules"):WaitForChild("AnimationSystem"))
+                    if AnimationSystem then
+                        AnimationSystem.PlayAnimation(player.Character, "Weight")
+                    end
+                    ReplicatedStorage.events.MainKeys:FireServer("WeightOn")
+                end)
+                task.wait(0.01)
+            end
+        end)
+    else
+        if taskHandles.weight then task.cancel(taskHandles.weight) taskHandles.weight = nil end
+    end
+end
+
+local function healUpFeature(state)
+    if state then
+        ReplicatedStorage.events.SoloPlrEvents:FireServer("Health")
+    end
+end
+
+local function autoPunchFeature(state)
+    if state then
+        taskHandles.punch = task.spawn(function()
+            local mainKeys = ReplicatedStorage:WaitForChild("events"):WaitForChild("MainKeys")
+            while true do
+                mainKeys:FireServer("Punch")
+                task.wait(0.01)
+            end
+        end)
+    else
+        if taskHandles.punch then task.cancel(taskHandles.punch) taskHandles.punch = nil end
+    end
+end
+
+local function autoPressTFeature(state)
+    if state then
+        taskHandles.pressT = task.spawn(function()
+            while true do
+                VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.T, false, game)
+                task.wait()
+                VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.T, false, game)
+                task.wait(0.002)
+            end
+        end)
+    else
+        if taskHandles.pressT then task.cancel(taskHandles.pressT) taskHandles.pressT = nil end
+    end
+end
+
+local function headlockFeature(state)
+    if state then
+        taskHandles.headlock = task.spawn(function()
+            local mainKeys = ReplicatedStorage:WaitForChild("events"):WaitForChild("MainKeys")
+            while true do
+                mainKeys:FireServer("DamageTool")
+                task.wait(0.08)
+            end
+        end)
+    else
+        if taskHandles.headlock then task.cancel(taskHandles.headlock) taskHandles.headlock = nil end
+    end
+end
+
+-- ==================== NEW FEATURE ====================
+local function autoEscapeFeature(state)
+    if state then
+        taskHandles.autoescape = task.spawn(function()
+            local ev = ReplicatedStorage:WaitForChild("events"):WaitForChild("ValueChange")
+            
+            while true do
+                local success, escaped = pcall(function()
+                    return char
+                        and char:FindFirstChild("Player")
+                        and char.Player:FindFirstChild("Damages")
+                        and char.Player.Damages:FindFirstChild("values")
+                        and char.Player.Damages.values:FindFirstChild("DamageTool")
+                        and char.Player.Damages.values.DamageTool:FindFirstChild("Escaped")
+                end)
+                
+                if success and escaped then
+                    ev:FireServer(escaped, true)
+                end
+                
+                task.wait(0.1)
+            end
+        end)
+    else
+        if taskHandles.autoescape then 
+            task.cancel(taskHandles.autoescape) 
+            taskHandles.autoescape = nil 
+        end
+    end
+end
+
+-- ==================== GUI ====================
+local sg = Instance.new("ScreenGui")
+sg.Name = "KaibluXeno"
+sg.ResetOnSpawn = false
+sg.Parent = playerGui
+
+local panel = Instance.new("Frame")
+panel.Size = UDim2.new(0, 160, 0, 380)
+panel.Position = UDim2.new(0.02, 0, 0.3, 0)
+panel.BackgroundColor3 = PANEL_COLOR
+panel.BackgroundTransparency = 0.2
+panel.Parent = sg
+Instance.new("UICorner", panel).CornerRadius = UDim.new(0, 12)
+
+local stroke = Instance.new("UIStroke")
+stroke.Color = STROKE_COLOR
+stroke.Thickness = 2
+stroke.Parent = panel
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 35)
+title.BackgroundColor3 = TITLE_COLOR
+title.Text = "Kaiblu Script - Xeno"
+title.TextColor3 = Color3.new(1,1,1)
+title.TextSize = 14
+title.Font = Enum.Font.GothamBold
+title.Parent = panel
+Instance.new("UICorner", title).CornerRadius = UDim.new(0, 12)
+
+-- Toggle Creator Function
+local y = 45
+local function createToggle(name, callback)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(0.9, 0, 0, 38)
+    btn.Position = UDim2.new(0.05, 0, 0, y)
+    btn.BackgroundColor3 = BUTTON_BASE
+    btn.Text = name .. " [OFF]"
+    btn.TextColor3 = Color3.new(1,1,1)
+    btn.Font = Enum.Font.GothamSemibold
+    btn.TextSize = 13
+    btn.Parent = panel
+    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
+
+    local active = false
+    btn.MouseButton1Click:Connect(function()
+        active = not active
+        btn.Text = name .. (active and " [ON]" or " [OFF]")
+        btn.BackgroundColor3 = active and BUTTON_ON or BUTTON_BASE
+        callback(active)
+    end)
+    y += 48
+end
+
+-- Create Toggles
+createToggle("Auto Punch", autoPunchFeature)
+createToggle("Headlock", headlockFeature)
+createToggle("Weight", weightFeature)
+createToggle("Auto Drag", autoDragFeature)
+createToggle("Auto Press T", autoPressTFeature)
+createToggle("Heal Up", healUpFeature)
+createToggle("Auto Escape", autoEscapeFeature)  -- ← New toggle
+
+-- ==================== V KEY TOGGLE GUI ====================
+UserInputService.InputBegan:Connect(function(input, gp)
+    if gp then return end
+    if input.KeyCode == Enum.KeyCode.V then
+        guiVisible = not guiVisible
+        panel.Visible = guiVisible
+    end
+end)
+
+print("✅ Kaiblu Script Loaded for Xeno | Press V to Hide/Show GUI")
+Rayfield:Notify({Title = "Loaded!", Content = "Press V to toggle GUI visibility", Duration = 6})
