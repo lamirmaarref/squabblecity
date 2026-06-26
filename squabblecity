@@ -59,7 +59,7 @@ local BUTTON_ON = Color3.fromRGB(0, 140, 255)
 local taskHandles = {}
 local guiVisible = true
 
--- ==================== HEADLOCK WITH RANDOM TIMING ====================
+-- ==================== HEADLOCK - Animation Every 4 Counts ====================
 local function headlockFeature(state)
     if state then
         taskHandles.headlock = task.spawn(function()
@@ -75,11 +75,21 @@ local function headlockFeature(state)
             animationTracks.headlock = track
             
             local mainKeys = ReplicatedStorage:WaitForChild("events"):WaitForChild("MainKeys")
+            local count = 0
             
             while true do
-                track:Play()
+                count += 1
+                
+                -- Fire DamageTool every loop
                 mainKeys:FireServer("DamageTool")
-                task.wait(math.random(8, 25) / 10)  -- Random 0.8 - 2.5 seconds
+                
+                -- Play animation only every 4th count
+                if count % 4 == 0 then
+                    track:Play()
+                end
+                
+                -- Random delay between actions
+                task.wait(math.random(8, 25) / 10)  -- 0.8 to 2.5 seconds
             end
         end)
     else
@@ -163,9 +173,9 @@ local function autoPressTFeature(state)
         taskHandles.pressT = task.spawn(function()
             while true do
                 VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.T, false, game)
-                task.wait(0.1)                    -- Hold T briefly
+                task.wait(0.1)
                 VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.T, false, game)
-                task.wait(2)                      -- Wait 2 seconds between presses
+                task.wait(2)
             end
         end)
     else
