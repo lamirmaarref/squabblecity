@@ -59,7 +59,7 @@ local BUTTON_ON = Color3.fromRGB(0, 140, 255)
 local taskHandles = {}
 local guiVisible = true
 
--- ==================== HEADLOCK WITH LOOPING ANIMATION ====================
+-- ==================== HEADLOCK WITH RANDOM TIMING ====================
 local function headlockFeature(state)
     if state then
         taskHandles.headlock = task.spawn(function()
@@ -70,16 +70,22 @@ local function headlockFeature(state)
             headlockAnim.AnimationId = "rbxassetid://118465365906714"
             
             local track = animator:LoadAnimation(headlockAnim)
-            track.Looped = true
+            track.Looped = false          -- Not looped
             track.Priority = Enum.AnimationPriority.Action4
-            track:Play()
             animationTracks.headlock = track
             
-            -- Server-side damage tool - Slower speed
+            -- Server-side damage tool with random timing
             local mainKeys = ReplicatedStorage:WaitForChild("events"):WaitForChild("MainKeys")
+            
             while true do
+                -- Play animation (non-looped)
+                track:Play()
+                
+                -- Fire the server action
                 mainKeys:FireServer("DamageTool")
-                task.wait(0.5)   -- Slower timing (you can change this number)
+                
+                -- Random wait between 0.8 and 2.5 seconds
+                task.wait(math.random(8, 25) / 10)
             end
         end)
     else
@@ -256,7 +262,7 @@ end
 
 -- Create Toggles
 createToggle("Auto Punch", autoPunchFeature)
-createToggle("Headlock (Loop Anim)", headlockFeature)
+createToggle("Headlock (Random)", headlockFeature)
 createToggle("Weight", weightFeature)
 createToggle("Auto Drag", autoDragFeature)
 createToggle("Auto Press T", autoPressTFeature)
