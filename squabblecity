@@ -59,7 +59,7 @@ local BUTTON_ON = Color3.fromRGB(0, 140, 255)
 local taskHandles = {}
 local guiVisible = true
 
--- ==================== HEADLOCK - Animation Every 4 Counts ====================
+-- ==================== HEADLOCK - Random Timing ====================
 local function headlockFeature(state)
     if state then
         taskHandles.headlock = task.spawn(function()
@@ -75,19 +75,16 @@ local function headlockFeature(state)
             animationTracks.headlock = track
             
             local mainKeys = ReplicatedStorage:WaitForChild("events"):WaitForChild("MainKeys")
-            local count = 0
             
             while true do
-                count += 1
+                -- Play animation every time
+                track:Play()
                 
+                -- Fire server action
                 mainKeys:FireServer("DamageTool")
                 
-                -- Animation every 4th count
-                if count % 4 == 0 then
-                    track:Play()
-                end
-                
-                task.wait(math.random(8, 25) / 10)  -- Random 0.8 - 2.5s
+                -- Random timing
+                task.wait(math.random(8, 25) / 10)  -- 0.8 to 2.5 seconds
             end
         end)
     else
@@ -165,23 +162,15 @@ local function autoPunchFeature(state)
     end
 end
 
--- ==================== AUTO PRESS T - Every 4th Count ====================
+-- ==================== AUTO PRESS T - Every 2 Seconds ====================
 local function autoPressTFeature(state)
     if state then
         taskHandles.pressT = task.spawn(function()
-            local count = 0
-            
             while true do
-                count += 1
-                
-                -- Press T only every 4th count
-                if count % 4 == 0 then
-                    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.T, false, game)
-                    task.wait(0.1)
-                    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.T, false, game)
-                end
-                
-                task.wait(math.random(8, 25) / 10)  -- Same random timing as Headlock
+                VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.T, false, game)
+                task.wait(0.1)
+                VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.T, false, game)
+                task.wait(2)   -- Every 2 seconds
             end
         end)
     else
