@@ -59,7 +59,7 @@ local BUTTON_ON = Color3.fromRGB(0, 140, 255)
 local taskHandles = {}
 local guiVisible = true
 
--- ==================== HEADLOCK - Random Timing ====================
+-- ==================== HEADLOCK - Every 4 Counts ====================
 local function headlockFeature(state)
     if state then
         taskHandles.headlock = task.spawn(function()
@@ -75,15 +75,20 @@ local function headlockFeature(state)
             animationTracks.headlock = track
             
             local mainKeys = ReplicatedStorage:WaitForChild("events"):WaitForChild("MainKeys")
+            local count = 0
             
             while true do
-                -- Play animation every time
-                track:Play()
+                count += 1
                 
-                -- Fire server action
+                -- Fire DamageTool every count
                 mainKeys:FireServer("DamageTool")
                 
-                -- Random timing
+                -- Animation + full action every 4 counts
+                if count % 4 == 0 then
+                    track:Play()
+                end
+                
+                -- Random timing between actions
                 task.wait(math.random(8, 25) / 10)  -- 0.8 to 2.5 seconds
             end
         end)
@@ -265,7 +270,7 @@ end
 
 -- Create Toggles
 createToggle("Auto Punch", autoPunchFeature)
-createToggle("Headlock (Random)", headlockFeature)
+createToggle("Headlock (Every 4)", headlockFeature)
 createToggle("Weight", weightFeature)
 createToggle("Auto Drag", autoDragFeature)
 createToggle("Auto Press T", autoPressTFeature)
