@@ -75,11 +75,11 @@ local function headlockFeature(state)
             track:Play()
             animationTracks.headlock = track
             
-            -- Server-side damage tool (matches Auto T speed)
+            -- Server-side damage tool - Slower speed
             local mainKeys = ReplicatedStorage:WaitForChild("events"):WaitForChild("MainKeys")
             while true do
                 mainKeys:FireServer("DamageTool")
-                task.wait(0.002)   -- Matched with Auto Press T timing
+                task.wait(0.5)   -- Slower timing (you can change this number)
             end
         end)
     else
