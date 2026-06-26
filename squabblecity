@@ -80,16 +80,14 @@ local function headlockFeature(state)
             while true do
                 count += 1
                 
-                -- Fire DamageTool every loop
                 mainKeys:FireServer("DamageTool")
                 
-                -- Play animation only every 4th count
+                -- Animation every 4th count
                 if count % 4 == 0 then
                     track:Play()
                 end
                 
-                -- Random delay between actions
-                task.wait(math.random(8, 25) / 10)  -- 0.8 to 2.5 seconds
+                task.wait(math.random(8, 25) / 10)  -- Random 0.8 - 2.5s
             end
         end)
     else
@@ -167,15 +165,23 @@ local function autoPunchFeature(state)
     end
 end
 
--- ==================== AUTO PRESS T (Every 2 Seconds) ====================
+-- ==================== AUTO PRESS T - Every 4th Count ====================
 local function autoPressTFeature(state)
     if state then
         taskHandles.pressT = task.spawn(function()
+            local count = 0
+            
             while true do
-                VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.T, false, game)
-                task.wait(0.1)
-                VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.T, false, game)
-                task.wait(2)
+                count += 1
+                
+                -- Press T only every 4th count
+                if count % 4 == 0 then
+                    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.T, false, game)
+                    task.wait(0.1)
+                    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.T, false, game)
+                end
+                
+                task.wait(math.random(8, 25) / 10)  -- Same random timing as Headlock
             end
         end)
     else
